@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة استضافة الملفات الاحترافية</title>
+    <style>
+        /* CSS Section */
+        :root {
+            --primary-color: #4f46e5;
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        p {
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--primary-color);
+            padding: 3rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-area:hover {
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        #fileList {
+            margin-top: 2rem;
+            text-align: right;
+        }
+
+        .file-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .file-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-name {
+            font-weight: bold;
+        }
+
+        .file-size {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        .copy-btn {
+            background: #10b981;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        #status {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>مستضيف الملفات الذكي</h1>
+        <p>ارفع ملفات HTML الخاصة بك واحصل على رابط مباشر فوراً</p>
+
+        <div class="upload-area" id="dropZone">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <div style="margin-top: 1rem;">اسحب الملفات هنا أو اضغط للاختيار</div>
+            <input type="file" id="fileInput" hidden multiple>
+        </div>
+
+        <div id="status"></div>
+
+        <div id="fileList">
+            <!-- سيتم إضافة الملفات المرفوعة هنا -->
+        </div>
+    </div>
+
+    <script>
+        /* JS Section */
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const status = document.getElementById('status');
+
+        dropZone.onclick = () => fileInput.click();
+
+        fileInput.onchange = (e) => handleFiles(e.target.files);
+
+        dropZone.ondragover = (e) => {
+            e.preventDefault();
+            dropZone.style.background = "rgba(79, 70, 229, 0.1)";
+        };
+
+        dropZone.ondragleave = () => {
+            dropZone.style.background = "transparent";
+        };
+
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            dropZone.style.background = "transparent";
+            handleFiles(e.dataTransfer.files);
+        };
+
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                uploadFile(file);
+            });
+        }
+
+        function uploadFile(file) {
+            status.innerText = "جاري الرفع: " + file.name;
+            
+            // محاكاة لعملية الرفع (لأن الاستضافة استاتيكية)
+            // في الواقع، ستحتاج لربط هذا بـ API مثل Firebase أو Supabase أو خادمك الخاص
+            setTimeout(() => {
+                addFileToList(file.name, (file.size / 1024).toFixed(2) + " KB");
+                status.innerText = "تم رفع الملف بنجاح!";
+                setTimeout(() => status.innerText = "", 3000);
+            }, 1500);
+        }
+
+        function addFileToList(name, size) {
+            const div = document.createElement('div');
+            div.className = 'file-item';
+            const randomLink = window.location.href + "#" + Math.random().toString(36).substring(7);
+            
+            div.innerHTML = `
+                <div class="file-info">
+                    <span class="file-name">${name}</span>
+                    <span class="file-size">${size}</span>
+                </div>
+                <button class="btn copy-btn" onclick="copyToClipboard('${randomLink}')">نسخ الرابط</button>
+            `;
+            fileList.appendChild(div);
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("تم نسخ رابط الملف!");
+            });
+        }
+    </script>
+</body>
+</html>
